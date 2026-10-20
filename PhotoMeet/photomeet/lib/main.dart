@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'models/photo_event.dart';
+import 'route_arguments.dart';
+import 'routes.dart';
 import 'screens/app_shell.dart';
+import 'screens/event_detail_screen.dart';
+import 'screens/event_form_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +27,26 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Route<dynamic>? _generateRoute(RouteSettings settings) {
+    final arguments = settings.arguments;
+
+    if (settings.name == Routes.detail && arguments is EventDetailArguments) {
+      return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (context) => EventDetailScreen(arguments: arguments),
+      );
+    }
+
+    if (settings.name == Routes.form && arguments is EventFormArguments) {
+      return MaterialPageRoute<PhotoEvent>(
+        settings: settings,
+        builder: (context) => EventFormScreen(event: arguments.event),
+      );
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final seedColor = ThemeData.light().colorScheme.primary;
@@ -41,7 +66,21 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-      home: AppShell(themeMode: _themeMode, onThemeChanged: _changeTheme),
+      initialRoute: Routes.home,
+      routes: {
+        Routes.home: (context) =>
+            AppShell(themeMode: _themeMode, onThemeChanged: _changeTheme),
+      },
+      onGenerateRoute: _generateRoute,
+      onUnknownRoute: (settings) => MaterialPageRoute<void>(
+        settings: settings,
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: const Text('Not found')),
+          body: const Center(
+            child: Text('The requested screen was not found.'),
+          ),
+        ),
+      ),
     );
   }
 }

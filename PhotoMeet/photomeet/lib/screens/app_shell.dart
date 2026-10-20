@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/seed_data.dart';
 import '../models/photo_event.dart';
 import '../models/profile.dart';
+import '../route_arguments.dart';
+import '../routes.dart';
 import '../utils/dialogs.dart';
 import 'events_tab.dart';
 import 'profile_tab.dart';
@@ -51,6 +53,63 @@ class _AppShellState extends State<AppShell> {
     setState(() {
       _profile = profile;
     });
+  }
+
+  void _updateEvent(PhotoEvent event) {
+    setState(() {
+      _events = _events
+          .map((current) => current.id == event.id ? event : current)
+          .toList();
+    });
+  }
+
+  void _deleteEvent(String id) {
+    setState(() {
+      _events = _events.where((event) => event.id != id).toList();
+    });
+  }
+
+  Future<void> _createEvent() async {
+    FocusScope.of(context).unfocus();
+
+    final result = await Navigator.pushNamed<PhotoEvent>(
+      context,
+      Routes.form,
+      arguments: const EventFormArguments(),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (result == null) {
+      return;
+    }
+
+    setState(() {
+      _events = [..._events, result];
+      _selectedTab = 0;
+    });
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Event created')));
+  }
+
+  void _openEvent(PhotoEvent event) {
+    Navigator.pushNamed<void>(
+      context,
+      Routes.detail,
+      arguments: EventDetailArguments(
+        event: event,
+        profile: _profile,
+        onChanged: _updateEvent,
+        onDeleted: _deleteEvent,
+        onProfileRequested: () {
+          Navigator.pop(context);
+          _selectTab(2);
+        },
+      ),
+    );
   }
 
   void _showAbout() {
@@ -165,12 +224,14 @@ class _AppShellState extends State<AppShell> {
             key: ValueKey('events-$_resetVersion'),
             events: _events,
             onFavourite: _toggleFavourite,
+            onOpen: _openEvent,
             emptyMessage: 'No events yet',
           ),
           EventsTab(
             key: ValueKey('favourites-$_resetVersion'),
             events: favourites,
             onFavourite: _toggleFavourite,
+            onOpen: _openEvent,
             emptyMessage: 'No favourites yet. Tap a heart to add one.',
             showFilters: false,
           ),
@@ -184,6 +245,13 @@ class _AppShellState extends State<AppShell> {
           ),
         ],
       ),
+      floatingActionButton: _selectedTab == 2
+          ? null
+          : FloatingActionButton(
+              tooltip: 'Create event',
+              onPressed: _createEvent,
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedTab,
         onDestinationSelected: _selectTab,
