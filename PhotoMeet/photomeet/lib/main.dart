@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'data/seed_data.dart';
 import 'models/photo_event.dart';
-import 'utils/format.dart';
+import 'widgets/event_card.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +35,19 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
-  final List<PhotoEvent> _events = createSeedEvents();
+  List<PhotoEvent> _events = createSeedEvents();
+
+  void _toggleFavourite(PhotoEvent event) {
+    setState(() {
+      _events = _events
+          .map(
+            (current) => current.id == event.id
+                ? current.copyWith(favourite: !current.favourite)
+                : current,
+          )
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,32 +59,11 @@ class _EventListScreenState extends State<EventListScreen> {
         separatorBuilder: (context, index) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final event = _events[index];
-          final date = event.when;
-          final (:taken, :free) = event.places;
 
-          return Card(
-            child: ListTile(
-              leading: Icon(
-                event.category.icon,
-                color: event.category.color(Theme.of(context).colorScheme),
-              ),
-              title: Text(
-                event.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                [
-                  if (date != null) formatDateTime(date),
-                  event.place,
-                  '$taken registered · $free free',
-                ].join('\n'),
-              ),
-              isThreeLine: true,
-              trailing: Icon(
-                event.favourite ? Icons.favorite : Icons.favorite_border,
-              ),
-            ),
+          return EventCard(
+            key: ValueKey(event.id),
+            event: event,
+            onFavourite: () => _toggleFavourite(event),
           );
         },
       ),
