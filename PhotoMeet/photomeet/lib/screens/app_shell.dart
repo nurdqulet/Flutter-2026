@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/seed_data.dart';
 import '../models/photo_event.dart';
 import '../models/profile.dart';
-import '../widgets/event_card.dart';
+import 'events_tab.dart';
 import 'profile_tab.dart';
 
 class AppShell extends StatefulWidget {
@@ -68,15 +68,16 @@ class _AppShellState extends State<AppShell> {
       body: IndexedStack(
         index: _selectedTab,
         children: [
-          _EventListTab(
+          EventsTab(
             events: _events,
             onFavourite: _toggleFavourite,
             emptyMessage: 'No events yet',
           ),
-          _EventListTab(
+          EventsTab(
             events: favourites,
             onFavourite: _toggleFavourite,
             emptyMessage: 'No favourites yet. Tap a heart to add one.',
+            showFilters: false,
           ),
           ProfileTab(
             profile: _profile,
@@ -108,45 +109,6 @@ class _AppShellState extends State<AppShell> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _EventListTab extends StatelessWidget {
-  const _EventListTab({
-    required this.events,
-    required this.onFavourite,
-    required this.emptyMessage,
-  });
-
-  final List<PhotoEvent> events;
-  final ValueChanged<PhotoEvent> onFavourite;
-  final String emptyMessage;
-
-  @override
-  Widget build(BuildContext context) {
-    if (events.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(emptyMessage, textAlign: TextAlign.center),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: events.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 8),
-      itemBuilder: (context, index) {
-        final event = events[index];
-
-        return EventCard(
-          key: ValueKey(event.id),
-          event: event,
-          onFavourite: () => onFavourite(event),
-        );
-      },
     );
   }
 }
