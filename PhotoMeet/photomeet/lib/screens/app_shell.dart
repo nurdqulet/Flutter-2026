@@ -169,11 +169,12 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final favourites = _events.where((event) => event.favourite).toList();
 
-    final joinedCount = _events
-        .where(
-          (event) => _profile.name.isNotEmpty && event.contains(_profile.name),
-        )
-        .length;
+    final joinedCount = _events.fold<int>(
+      0,
+      (total, event) =>
+          total +
+          (_profile.name.isNotEmpty && event.contains(_profile.name) ? 1 : 0),
+    );
 
     final titles = ['PhotoMeet', 'Favourites', 'Profile'];
 

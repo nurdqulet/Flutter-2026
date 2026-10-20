@@ -95,7 +95,7 @@ class PhotoEvent {
     return date != null && date.isBefore(DateTime.now());
   }
 
-  bool contains(String name) => names.contains(name);
+  bool contains(String name) => names.any((current) => current == name);
 
   ({int taken, int free}) get places => (taken: count, free: freePlaces);
 
