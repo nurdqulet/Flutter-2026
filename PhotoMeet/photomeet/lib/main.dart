@@ -1,72 +1,47 @@
 import 'package:flutter/material.dart';
 
-import 'data/seed_data.dart';
-import 'models/photo_event.dart';
-import 'widgets/event_card.dart';
+import 'screens/app_shell.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PhotoMeet',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: ThemeData.light().colorScheme.primary,
-        ),
-        useMaterial3: true,
-      ),
-      home: const EventListScreen(),
-    );
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
-class EventListScreen extends StatefulWidget {
-  const EventListScreen({super.key});
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
 
-  @override
-  State<EventListScreen> createState() => _EventListScreenState();
-}
-
-class _EventListScreenState extends State<EventListScreen> {
-  List<PhotoEvent> _events = createSeedEvents();
-
-  void _toggleFavourite(PhotoEvent event) {
+  void _changeTheme(ThemeMode mode) {
     setState(() {
-      _events = _events
-          .map(
-            (current) => current.id == event.id
-                ? current.copyWith(favourite: !current.favourite)
-                : current,
-          )
-          .toList();
+      _themeMode = mode;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('PhotoMeet')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: _events.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          final event = _events[index];
+    final seedColor = ThemeData.light().colorScheme.primary;
 
-          return EventCard(
-            key: ValueKey(event.id),
-            event: event,
-            onFavourite: () => _toggleFavourite(event),
-          );
-        },
+    return MaterialApp(
+      title: 'PhotoMeet',
+      debugShowCheckedModeBanner: false,
+      themeMode: _themeMode,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
+        useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seedColor,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      home: AppShell(themeMode: _themeMode, onThemeChanged: _changeTheme),
     );
   }
 }
