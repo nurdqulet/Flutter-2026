@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'models/book.dart';
 import 'widgets/book_tile.dart';
+import 'detail_screen.dart';
+import 'add_book_screen.dart';
 
 enum Filter { all, unread, read }
 
@@ -22,6 +24,47 @@ class _LibraryScreenState extends State<LibraryScreen> {
     Filter.unread => unread(_books),
     Filter.read => _books.where((book) => book.read).toList(),
   };
+
+  Future<void> _openBook(Book book) async {
+    final action = await Navigator.of(context).push<BookAction>(
+      MaterialPageRoute<BookAction>(
+        builder: (context) => DetailScreen(book: book),
+      ),
+    );
+
+    if (!mounted) return;
+
+    switch (action) {
+      case null:
+        break;
+
+      case BookAction.toggleRead:
+        setState(() {
+          book.read = !book.read;
+        });
+        break;
+
+      case BookAction.delete:
+        setState(() {
+          _books.remove(book);
+        });
+        break;
+    }
+  }
+
+  Future<void> _addBook() async {
+    final book = await Navigator.of(context).push<Book>(
+      MaterialPageRoute<Book>(builder: (context) => const AddBookScreen()),
+    );
+
+    if (!mounted) return;
+
+    if (book == null) return;
+
+    setState(() {
+      _books.add(book);
+    });
+  }
 
   Widget _statItem(BuildContext context, String label, int value) {
     final textTheme = Theme.of(context).textTheme;
@@ -121,18 +164,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
               itemBuilder: (context, index) {
                 final book = _visible[index];
 
-                return BookTile(
-                  book: book,
-                  onToggle: () {
-                    setState(() {
-                      book.read = !book.read;
-                    });
-                  },
+                return InkWell(
+                  onTap: () => _openBook(book),
+                  child: BookTile(
+                    book: book,
+                    onToggle: () {
+                      setState(() {
+                        book.read = !book.read;
+                      });
+                    },
+                  ),
                 );
               },
             ),
           ),
         ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addBook,
+        tooltip: 'Add Book',
+        child: const Icon(Icons.add),
       ),
     );
   }
