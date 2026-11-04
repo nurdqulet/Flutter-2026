@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'cart_badge.dart';
-import 'main.dart';
+import 'models/book.dart';
 
 class BooksScreen extends StatelessWidget {
   const BooksScreen({super.key, required this.cart, required this.onAdd, required this.total});
