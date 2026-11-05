@@ -9,7 +9,8 @@ class CartBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('badge build');
-    final n = context.watch<Cart>().count;
+    // select: rebuild only when `count` itself changes.
+    final n = context.select<Cart, int>((c) => c.count);
     return IconButton(
       icon: Badge(
         label: Text('$n'),

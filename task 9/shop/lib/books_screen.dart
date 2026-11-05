@@ -22,12 +22,16 @@ class BooksScreen extends StatelessWidget {
           return ListTile(
             title: Text(b.title),
             subtitle: Text(b.author),
-            trailing: context.watch<Cart>().items.contains(b)
-                ? const Text('Added')
-                : OutlinedButton(
-                    onPressed: () => context.read<Cart>().add(b),
-                    child: const Text('Add'),
-                  ),
+            // Builder gives this button its OWN context, so only the button
+            // subscribes to the cart, not the whole screen.
+            trailing: Builder(
+              builder: (context) => context.watch<Cart>().items.contains(b)
+                  ? const Text('Added')
+                  : OutlinedButton(
+                      onPressed: () => context.read<Cart>().add(b),
+                      child: const Text('Add'),
+                    ),
+            ),
           );
         }).toList(),
       ),
