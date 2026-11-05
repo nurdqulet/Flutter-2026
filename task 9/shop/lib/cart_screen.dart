@@ -6,10 +6,44 @@ import 'models/cart.dart';
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
+  Future<void> _confirmClear(BuildContext context) async {
+    // The question lives in the widget...
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear cart?'),
+        content: const Text('All books will be removed from the cart.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+    // ...after an await the screen may be gone, so check first.
+    if (!context.mounted) return;
+    // ...and the clearing lives in the model.
+    if (ok == true) context.read<Cart>().clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cart')),
+      appBar: AppBar(
+        title: const Text('Cart'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Clear cart',
+            onPressed: () => _confirmClear(context),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(

@@ -12,10 +12,7 @@ class CartBadge extends StatelessWidget {
     // select: rebuild only when `count` itself changes.
     final n = context.select<Cart, int>((c) => c.count);
     return IconButton(
-      icon: Badge(
-        label: Text('$n'),
-        child: const Icon(Icons.shopping_cart),
-      ),
+      icon: Badge(label: Text('$n'), child: const Icon(Icons.shopping_cart)),
       onPressed: () => Navigator.of(context).pushNamed('/cart'),
     );
   }
