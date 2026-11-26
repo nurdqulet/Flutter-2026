@@ -60,12 +60,7 @@ class UserDetailScreen extends StatelessWidget {
   /// launchUrl answers false when no app can open the link.
   Future<void> _open(BuildContext context, Uri uri) async {
     final messenger = ScaffoldMessenger.of(context);
-    var ok = false;
-    try {
-      ok = await launchUrl(uri);
-    } on PlatformException {
-      ok = false;
-    }
+    final ok = await launchUrl(uri);
     if (!ok) {
       messenger.showSnackBar(
         const SnackBar(content: Text('No app can open this')),

@@ -15,9 +15,15 @@ class SettingsScreen extends StatelessWidget {
     final s = context.watch<SettingsModel>();
     final users = context.watch<UsersModel>().items;
 
-    // cities from the loaded users; keep the saved one even if not loaded yet
-    final cities = {for (final u in users) u.address.city, ?s.city}.toList()
-      ..sort();
+    // all cities of the loaded users, without duplicates
+    final citySet = <String>{};
+    for (final u in users) {
+      citySet.add(u.address.city);
+    }
+    // the saved city must be in the list, even before the users are loaded
+    final saved = s.city;
+    if (saved != null) citySet.add(saved);
+    final cities = citySet.toList()..sort();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
